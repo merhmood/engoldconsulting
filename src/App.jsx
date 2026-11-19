@@ -10,6 +10,7 @@ import Careers from './Careers.jsx';
 import Contact from './Contact.jsx';
 import Industries from './Industries.jsx';
 import { EMAIL, PHONE, PHONE_HREF, HOURS, OFFICES, LINKEDIN_URL } from './siteInfo.js';
+import { metaFor } from './seo.js';
 
 // ENGOLD BRAND LOGO (official lockup: dark text for light backgrounds, white text for dark backgrounds)
 const EngoldLogo = ({ onClick, className = '', size = 'default', inverted = false }) => {
@@ -186,28 +187,7 @@ const FOOTER_COLUMNS = [
   },
 ];
 
-// ─── PER-PAGE SEO META ───
-const SITE_URL = 'https://engoldconsultingllc.com';
-const DEFAULT_DESCRIPTION =
-  'Engold Consulting helps businesses improve and operate more efficiently while minimizing risk, with advisory, IT risk management, compliance, cybersecurity, data privacy and managed services.';
-const PAGE_DESCRIPTIONS = {
-  about: 'Over 20 years of experience delivering IT risk intelligence and strategy. Our consultants hold CISA, CISSP, CISM, CEH and CDPSE certifications.',
-  solutions: 'Engold Consulting services: Advisory, Risk Consulting (IT risk, compliance, vendor risk, data privacy), Cyber & Data and Managed Services.',
-  advisory: 'ERP transformation (Oracle, SAP, NetSuite, Workday, Salesforce, SuccessFactors), cyber security, application security, process controls and SOD advisory.',
-  'risk-consulting': 'Risk consulting from Engold Consulting: IT risk management, compliance management, 3rd party and vendor risk management, and data privacy.',
-  'it-risk': 'Enterprise GRC programs, GRC platform implementation (ServiceNow, Archer, Oracle GRC and more) and IT audit services from certified professionals.',
-  compliance: 'Compliance assessments across SOX, GDPR, GLBA, PCI DSS, HIPAA, HITRUST, CCPA, NIST, FFIEC, FISMA, COBIT and ISO 27000.',
-  'vendor-risk': 'Third-party risk management program design, assessment, continuous monitoring and Vendor Risk as a Service (VRaaS).',
-  'data-privacy': 'Data privacy program development, compliance, risk and impact assessments, and CCPA and GDPR readiness assessments.',
-  'cyber-data': 'Security assessments, penetration testing, vulnerability scanning, infrastructure and application security, and CISO as a Service.',
-  'managed-services': 'Managed security operations to reduce compliance costs: Staff Augmentation, vCISO and Compliance as a Service (CAAS).',
-  'ai-consulting': 'AI consulting from Engold Consulting: AI governance and risk management, secure AI adoption, and AI data privacy and compliance.',
-  industries: 'Engold Consulting provides IT risk, compliance, cybersecurity and data privacy consulting for financial services, healthcare, energy, retail and manufacturing.',
-  'contact-us': 'Contact Engold Consulting. Chicago and Dallas offices, +888 252 7899, info@engoldconsultingllc.com, 8am - 6pm EST.',
-  careers: 'Careers at Engold Consulting in IT risk, compliance, cybersecurity and data privacy.',
-  article: 'AI insights from Engold Consulting.',
-};
-
+// ─── PER-PAGE SEO META (data lives in seo.js, shared with the build-time prerender) ───
 const setMeta = (attr, key, value) => {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
   if (!el) {
@@ -218,9 +198,8 @@ const setMeta = (attr, key, value) => {
   el.setAttribute('content', value);
 };
 
-const applyPageMeta = (page, title, path) => {
-  const description = PAGE_DESCRIPTIONS[page] || DEFAULT_DESCRIPTION;
-  const url = `${SITE_URL}${path}`;
+const applyPageMeta = (page, articleId) => {
+  const { title, description, url } = metaFor(page, articleId);
   document.title = title;
   setMeta('name', 'description', description);
   setMeta('property', 'og:title', title);
@@ -231,11 +210,6 @@ const applyPageMeta = (page, title, path) => {
   const canonical = document.head.querySelector('link[rel="canonical"]');
   if (canonical) canonical.setAttribute('href', url);
 };
-
-const titleFor = (page) =>
-  page === 'home'
-    ? 'ENGOLD Consulting | IT Risk, Compliance & Cybersecurity Consulting'
-    : `${page.split('-').map((w) => (w.length <= 2 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1))).join(' ')} | ENGOLD Consulting`;
 
 export default function App() {
   const [initialRoute] = useState(parseLocation);
@@ -284,7 +258,7 @@ export default function App() {
   // Every new page starts at the top, like a real page load
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    applyPageMeta(currentPage, titleFor(currentPage), pathFor(currentPage, activeArticleId));
+    applyPageMeta(currentPage, activeArticleId);
   }, [currentPage, activeArticleId]);
 
   const activeNav = getActiveNav(currentPage);
