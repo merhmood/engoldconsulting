@@ -102,3 +102,69 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
+/* ── Continuous motion slider (CapabilityMarquee) ──
+   Each track holds its content twice and slides by exactly one copy, so the loop is seamless. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 60s) linear infinite;
+}
+
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+.marquee-set {
+  display: flex;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Respect "reduce motion": no animation, the row becomes swipeable instead */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; }
+  .marquee-track { animation: none; }
+  .marquee-set[aria-hidden="true"] { display: none; }
+}
+
+/* ── Typing cursor (Home hero headline) ──
+   Solid while typing; once the line is complete it blinks twice and fades out. */
+.typing-caret {
+  display: inline-block;
+  width: 0.08em;
+  height: 0.85em;
+  margin-left: 0.08em;
+  vertical-align: -0.05em;
+  border-radius: 1px;
+  background: #f97316; /* orange-500 */
+}
+
+.typing-caret-done {
+  animation: typing-caret-finish 1.6s steps(1, end) forwards;
+}
+
+@keyframes typing-caret-finish {
+  0%, 50% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-caret { display: none; }
+}
