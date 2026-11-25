@@ -11,8 +11,8 @@ const mapsUrl = (address) => `https://www.google.com/maps/search/?api=1&query=${
 export const OFFICES = [
   {
     name: 'Chicago Office',
-    lines: ['15 S Howard Ave, Suite 20', 'Roselle, IL 60172'],
-    mapsUrl: mapsUrl('15 S Howard Ave, Suite 20, Roselle, IL 60172'),
+    lines: ['9784 Bedford Drive', 'Huntley, IL 60142'],
+    mapsUrl: mapsUrl('9784 Bedford Drive, Huntley, IL 60142'),
   },
   {
     name: 'Dallas Office',
