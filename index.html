@@ -90,6 +90,40 @@
 </head>
 
 <body class="bg-slate-50">
+  <!--
+    Netlify Forms: static copies of the site's forms so Netlify detects them at deploy time.
+    The real forms are rendered by React (Contact.jsx, GetInTouchModal.jsx) and submitted with
+    src/netlifyForms.js. Field names here must match what those forms send.
+  -->
+  <div hidden aria-hidden="true">
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="bot-field" /><input name="subject" />
+      <input name="name" /><input name="email" /><input name="phone" />
+      <textarea name="message"></textarea>
+    </form>
+    <form name="hire" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input name="bot-field" /><input name="subject" /><input name="enquiryType" />
+      <input name="firstName" /><input name="lastName" /><input name="email" /><input name="phone" />
+      <input name="company" /><input name="jobTitle" /><input name="positionType" />
+      <input name="positionTitle" /><input name="positionLocation" />
+      <textarea name="message"></textarea>
+      <input type="file" name="attachment" /><input name="consent" />
+    </form>
+    <form name="consultant" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="bot-field" /><input name="subject" /><input name="enquiryType" />
+      <input name="firstName" /><input name="lastName" /><input name="email" /><input name="phone" />
+      <input name="company" /><input name="jobTitle" /><input name="service" />
+      <textarea name="message"></textarea>
+      <input name="consent" />
+    </form>
+    <form name="job" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input name="bot-field" /><input name="subject" /><input name="enquiryType" />
+      <input name="firstName" /><input name="lastName" /><input name="email" /><input name="phone" />
+      <input name="positionType" /><input name="desiredRole" /><input name="location" /><input name="expertise" />
+      <textarea name="message"></textarea>
+      <input type="file" name="attachment" /><input name="consent" />
+    </form>
+  </div>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

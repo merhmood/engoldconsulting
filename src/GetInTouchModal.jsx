@@ -3,16 +3,15 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, TrendingUp, MessagesSquare, UserRound, Upload, FileText, CheckCircle2, Trash2 } from 'lucide-react';
 import { EMAIL } from './siteInfo.js';
+import { submitNetlifyForm, MAX_FILE_BYTES } from './netlifyForms.js';
 
 /**
  * "Get in touch" dialog with three enquiry types, each with its own form.
  *
- * Sending: if VITE_FORM_ENDPOINT is set (a form service or a small mail script on the host),
- * the form is POSTed there as multipart/form-data, attachments included, with `_to` and `_subject`
- * fields saying where it should go. Without it, the visitor's email app opens with every answer
- * filled in (files can't be attached that way, so they are asked to attach them in the email).
+ * Each type is a Netlify form ("hire", "consultant", "job"); see netlifyForms.js. The hidden copies
+ * in index.html must list the same field names as FIELDS below, plus enquiryType, subject,
+ * consent, attachment and bot-field. If sending fails, the visitor can fall back to their email app.
  */
-const FORM_ENDPOINT = import.meta.env.VITE_FORM_ENDPOINT || '';
 
 const NAVY = '#0F1B2D';
 
@@ -146,52 +145,59 @@ const Field = ({ field, value, onChange, idPrefix }) => {
     );
 };
 
-const FileDrop = ({ label, files, setFiles, idPrefix }) => {
+// Single file upload (Netlify accepts one file per field), with drag and drop
+const FileDrop = ({ label, file, setFile, idPrefix }) => {
     const [dragging, setDragging] = useState(false);
-    const add = (list) => setFiles((prev) => [...prev, ...Array.from(list)].slice(0, 3));
+    const [error, setError] = useState('');
+    const pick = (list) => {
+        const f = list && list[0];
+        if (!f) return;
+        if (f.size > MAX_FILE_BYTES) {
+            setError(`That file is ${(f.size / 1048576).toFixed(1)} MB. Please upload a file under ${MAX_FILE_BYTES / 1048576} MB.`);
+            return;
+        }
+        setError('');
+        setFile(f);
+    };
     return (
         <div className="sm:col-span-2">
             <p className="block text-sm font-bold mb-2" style={{ color: NAVY }}>{label}</p>
             <div
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
-                onDrop={(e) => { e.preventDefault(); setDragging(false); add(e.dataTransfer.files); }}
+                onDrop={(e) => { e.preventDefault(); setDragging(false); pick(e.dataTransfer.files); }}
                 className={`flex flex-wrap items-center gap-3 rounded-lg border-2 border-dashed px-4 py-4 transition-colors ${dragging ? 'border-orange-500 bg-orange-50' : 'border-slate-300'}`}
             >
                 <label
-                    htmlFor={`${idPrefix}-files`}
+                    htmlFor={`${idPrefix}-file`}
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border-2 border-[#0F1B2D] text-sm font-bold text-[#0F1B2D] hover:bg-[#0F1B2D] hover:text-white transition-colors cursor-pointer focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-orange-500"
                 >
                     <Upload className="w-4 h-4" aria-hidden="true" />
-                    Upload files
+                    Upload file
                     <input
-                        id={`${idPrefix}-files`}
+                        id={`${idPrefix}-file`}
                         type="file"
-                        multiple
                         accept=".pdf,.doc,.docx,.rtf,.txt"
                         className="sr-only"
-                        onChange={(e) => { add(e.target.files); e.target.value = ''; }}
+                        onChange={(e) => { pick(e.target.files); e.target.value = ''; }}
                     />
                 </label>
-                <span className="text-sm text-slate-500">or drop files here (PDF or Word, up to 3)</span>
+                <span className="text-sm text-slate-500">or drop a file here (PDF or Word, up to {MAX_FILE_BYTES / 1048576} MB)</span>
             </div>
-            {files.length > 0 && (
-                <ul className="mt-3 space-y-2">
-                    {files.map((f, i) => (
-                        <li key={`${f.name}-${i}`} className="flex items-center gap-3 rounded-lg bg-[#F3F5F8] px-3 py-2 text-sm text-slate-700">
-                            <FileText className="w-4 h-4 text-orange-500 shrink-0" aria-hidden="true" />
-                            <span className="flex-1 min-w-0 truncate">{f.name}</span>
-                            <button
-                                type="button"
-                                onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
-                                aria-label={`Remove ${f.name}`}
-                                className="p-1 rounded text-slate-500 hover:text-red-600"
-                            >
-                                <Trash2 className="w-4 h-4" aria-hidden="true" />
-                            </button>
-                        </li>
-                    ))}
-                </ul>
+            {error && <p role="alert" className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
+            {file && (
+                <div className="mt-3 flex items-center gap-3 rounded-lg bg-[#F3F5F8] px-3 py-2 text-sm text-slate-700">
+                    <FileText className="w-4 h-4 text-orange-500 shrink-0" aria-hidden="true" />
+                    <span className="flex-1 min-w-0 truncate">{file.name}</span>
+                    <button
+                        type="button"
+                        onClick={() => setFile(null)}
+                        aria-label={`Remove ${file.name}`}
+                        className="p-1 rounded text-slate-500 hover:text-red-600"
+                    >
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                </div>
             )}
         </div>
     );
@@ -201,7 +207,8 @@ const EnquiryForm = ({ type, onDone }) => {
     const config = TYPES[type];
     const fields = FIELDS[type];
     const [values, setValues] = useState(() => Object.fromEntries(fields.map((f) => [f.name, ''])));
-    const [files, setFiles] = useState([]);
+    const [file, setFile] = useState(null);
+    const [botField, setBotField] = useState(''); // honeypot: real visitors never fill it
     const [consent, setConsent] = useState(false);
     const [status, setStatus] = useState('idle'); // idle | sending | error
     const onChange = (e) => setValues((v) => ({ ...v, [e.target.name]: e.target.value }));
@@ -212,51 +219,42 @@ const EnquiryForm = ({ type, onDone }) => {
             .filter(Boolean)
             .join('\n');
 
+    const name = `${values.firstName} ${values.lastName}`.trim();
+    const subject = `${config.subject} from ${name}`;
+
+    // Fallback if Netlify can't be reached: the visitor's email app, with every answer filled in
+    const mailtoHref = () => {
+        const attachNote = config.fileLabel ? `\n\n(${config.fileLabel.replace('Attach', 'Please attach')} to this email.)` : '';
+        return `mailto:${config.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summary() + attachNote)}`;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const name = `${values.firstName} ${values.lastName}`.trim();
-        const subject = `${config.subject} from ${name}`;
-
-        if (FORM_ENDPOINT) {
-            setStatus('sending');
-            try {
-                const data = new FormData();
-                data.append('_to', config.to);
-                data.append('_subject', subject);
-                data.append('enquiryType', config.label);
-                fields.forEach((f) => data.append(f.name, values[f.name] || ''));
-                files.forEach((file) => data.append('attachments', file, file.name));
-                const res = await fetch(FORM_ENDPOINT, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                onDone({ sent: true });
-            } catch {
-                setStatus('error');
-            }
-            return;
+        setStatus('sending');
+        try {
+            await submitNetlifyForm(
+                type,
+                { ...values, enquiryType: config.label, subject, consent: 'Yes', 'bot-field': botField },
+                file,
+            );
+            onDone({ sent: true });
+        } catch {
+            setStatus('error');
         }
-
-        // No form service configured yet: open the visitor's email app with everything filled in.
-        const attachNote = config.fileLabel ? `\n\n(${config.fileLabel.replace('Attach', 'Please attach')} to this email.)` : '';
-        window.location.href = `mailto:${config.to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summary() + attachNote)}`;
-        onDone({ sent: false, needsAttachment: Boolean(config.fileLabel) });
     };
 
     return (
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+        <form name={type} onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+            {/* Honeypot for spam bots: hidden from people and screen readers */}
+            <p className="hidden" aria-hidden="true">
+                <label>Leave this empty <input name="bot-field" tabIndex={-1} autoComplete="off" value={botField} onChange={(e) => setBotField(e.target.value)} /></label>
+            </p>
+
             {fields.map((field) => (
                 <Field key={field.name} field={field} value={values[field.name]} onChange={onChange} idPrefix={type} />
             ))}
 
-            {config.fileLabel && (
-                FORM_ENDPOINT ? (
-                    <FileDrop label={config.fileLabel} files={files} setFiles={setFiles} idPrefix={type} />
-                ) : (
-                    <div className="sm:col-span-2 flex items-start gap-3 rounded-lg bg-[#F3F5F8] px-4 py-3 text-sm text-slate-600">
-                        <FileText className="w-4 h-4 mt-0.5 text-orange-500 shrink-0" aria-hidden="true" />
-                        <span>{config.fileLabel}: your email app will open when you submit, so you can attach it there before sending.</span>
-                    </div>
-                )
-            )}
+            {config.fileLabel && <FileDrop label={config.fileLabel} file={file} setFile={setFile} idPrefix={type} />}
 
             <label className="sm:col-span-2 flex items-start gap-3 cursor-pointer text-[15px] text-slate-700 leading-relaxed">
                 <input
@@ -270,9 +268,14 @@ const EnquiryForm = ({ type, onDone }) => {
             </label>
 
             {status === 'error' && (
-                <p role="alert" className="sm:col-span-2 text-sm font-semibold text-red-600">
-                    Something went wrong sending your details. Please try again, or email us at {config.to}.
-                </p>
+                <div role="alert" className="sm:col-span-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                    <p className="font-semibold">Sorry, we couldn't send your details just now.</p>
+                    <p className="mt-1">
+                        Please try again, or{' '}
+                        <a href={mailtoHref()} className="font-bold underline underline-offset-2">send them by email instead</a>
+                        {' '}to {config.to}.
+                    </p>
+                </div>
             )}
 
             <div className="sm:col-span-2 flex justify-center pt-2">

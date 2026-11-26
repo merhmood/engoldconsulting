@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import PageHero from './PageHero.jsx';
 import { EMAIL, PHONE, PHONE_HREF, HOURS, OFFICES } from './siteInfo.js';
+import { submitNetlifyForm } from './netlifyForms.js';
 
 const FIELDS = [
     { name: 'name', placeholder: 'Your Name', type: 'text', autoComplete: 'name', required: true },
@@ -26,14 +27,14 @@ const InfoCard = ({ icon, title, children }) => (
 
 export default function Contact({ onNavigate }) {
     const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
-    const [opened, setOpened] = useState(false);
+    const [botField, setBotField] = useState(''); // honeypot: real visitors never fill it
+    const [status, setStatus] = useState('idle'); // idle | sending | sent | error
 
     const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const subject = form.subject || `Website enquiry from ${form.name}`;
 
-    // No server behind this site yet: the message opens, pre-filled, in the visitor's email app.
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const subject = form.subject || `Website enquiry from ${form.name}`;
+    // Fallback if Netlify can't be reached: the visitor's email app, pre-filled
+    const mailtoHref = () => {
         const body = [
             form.message,
             '',
@@ -41,8 +42,20 @@ export default function Contact({ onNavigate }) {
             `Email: ${form.email}`,
             form.phone && `Phone: ${form.phone}`,
         ].filter((line) => line !== false && line !== undefined).join('\n');
-        window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        setOpened(true);
+        return `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    // Sent through Netlify Forms (form "contact" in index.html), emailed to info@
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setStatus('sending');
+        try {
+            await submitNetlifyForm('contact', { ...form, subject, 'bot-field': botField });
+            setStatus('sent');
+            setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+        } catch {
+            setStatus('error');
+        }
     };
 
     return (
@@ -97,9 +110,14 @@ export default function Contact({ onNavigate }) {
                 {/* GET IN TOUCH FORM */}
                 <div className="lg:col-span-7">
                     <form
+                        name="contact"
                         onSubmit={handleSubmit}
                         className="bg-[#F3F5F8] p-6 sm:p-10 rounded-2xl border border-slate-200 space-y-6"
                     >
+                        {/* Honeypot for spam bots: hidden from people and screen readers */}
+                        <p className="hidden" aria-hidden="true">
+                            <label>Leave this empty <input name="bot-field" tabIndex={-1} autoComplete="off" value={botField} onChange={(e) => setBotField(e.target.value)} /></label>
+                        </p>
                         <div className="space-y-2">
                             <p className="text-base font-semibold text-orange-600">Send us a message</p>
                             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0F1B2D]">Get In Touch</h2>
@@ -142,14 +160,21 @@ export default function Contact({ onNavigate }) {
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                             <button
                                 type="submit"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
+                                disabled={status === 'sending'}
+                                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-bold transition-colors"
                             >
-                                Send Message
+                                {status === 'sending' ? 'Sending…' : 'Send Message'}
                                 <Send className="w-4 h-4" />
                             </button>
-                            {opened && (
-                                <p className="text-xs text-gray-500" role="status">
-                                    Your email app should open with your message. If it doesn't, email us at {EMAIL}.
+                            {status === 'sent' && (
+                                <p className="text-sm font-semibold text-green-700" role="status">
+                                    Thank you, your message has been sent. We will be in touch shortly.
+                                </p>
+                            )}
+                            {status === 'error' && (
+                                <p className="text-sm text-red-700" role="alert">
+                                    Sorry, we couldn't send your message just now. Please try again, or{' '}
+                                    <a href={mailtoHref()} className="font-bold underline underline-offset-2">send it by email instead</a>.
                                 </p>
                             )}
                         </div>
