@@ -2,6 +2,8 @@
 // Used by the header top bar, Contact page and footer so they always stay in sync.
 
 export const EMAIL = 'info@engoldconsultingllc.com';
+// IT Recruitment enquiries (all calls to action on the IT Recruitment page)
+export const RECRUITMENT_EMAIL = 'As@engoldconsultingllc.com';
 export const PHONE = '+888 252 7899';
 export const PHONE_HREF = 'tel:+8882527899';
 export const HOURS = '8am - 6pm EST';

@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Compass, ShieldAlert, Lock, Server } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Compass, ShieldAlert, Lock, Server, Users } from 'lucide-react';
 
 const NAVY = '#0F1B2D';
 
@@ -230,9 +230,20 @@ export function AiConsulting({ onNavigate, onOpenArticle }) {
 }
 
 /* ─────────────────────────── CORE SERVICES ───────────────────────────
-   The four core services and their items exactly as on the original homepage.
+   The core services and their items (IT Recruitment first; the other four as on the original homepage).
    Items with a `page` link straight to that service's page. */
 const CORE_SERVICES = [
+    {
+        icon: Users,
+        title: 'IT Recruitment',
+        page: 'it-recruitment',
+        summary: 'Skilled IT, risk and security professionals for your team.',
+        items: [
+            { label: 'Contract IT staffing' },
+            { label: 'Contract-to-hire' },
+            { label: 'Permanent placement' },
+        ],
+    },
     {
         icon: Compass,
         title: 'Advisory',
@@ -309,17 +320,15 @@ export function CoreServices({ onNavigate, showAllLink = true }) {
                     </div>
                 </div>
 
-                {/* SERVICE LEDGER: one panel, four ruled columns */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 rounded-2xl border border-slate-200 overflow-hidden">
-                    {CORE_SERVICES.map(({ icon: Icon, title, page, summary, items }, i) => (
+                {/* SERVICE LEDGER: one panel, ruled columns (1px gaps over a slate background draw the rules) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-px bg-slate-200 rounded-2xl border border-slate-200 overflow-hidden">
+                    {CORE_SERVICES.map(({ icon: Icon, title, page, linkLabel, summary, items }, i) => (
                         <article
                             key={title}
                             className={[
-                                'flex flex-col p-7 sm:p-8 bg-white hover:bg-[#F3F5F8] transition-colors border-slate-200',
-                                i > 0 ? 'border-t sm:border-t-0' : '',
-                                i % 2 === 1 ? 'sm:border-l' : '',
-                                i >= 2 ? 'sm:border-t lg:border-t-0' : '',
-                                i === 2 ? 'lg:border-l' : '',
+                                'flex flex-col p-7 sm:p-8 bg-white hover:bg-[#F3F5F8] transition-colors',
+                                // an odd last card fills its row on the 2-column layout
+                                i === CORE_SERVICES.length - 1 && CORE_SERVICES.length % 2 === 1 ? 'sm:col-span-2 xl:col-span-1' : '',
                             ].join(' ')}
                         >
                             <Icon className="w-7 h-7 text-orange-500" strokeWidth={1.75} aria-hidden="true" />
@@ -350,7 +359,7 @@ export function CoreServices({ onNavigate, showAllLink = true }) {
                                 onNavigate={onNavigate}
                                 className="group mt-8 inline-flex items-center gap-2 text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600 rounded"
                             >
-                                <span className="text-[#0F1B2D] group-hover:text-orange-600 transition-colors">View {title}</span>
+                                <span className="text-[#0F1B2D] group-hover:text-orange-600 transition-colors">{linkLabel || `View ${title}`}</span>
                                 <ArrowRight className="w-4 h-4 text-orange-500 group-hover:translate-x-1 transition-transform" />
                             </RouteLink>
                         </article>

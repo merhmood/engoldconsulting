@@ -32,7 +32,7 @@ const SERVICE_PAGES = {
         image: '/images/web/global-transformation.jpg',
         stats: [
             YEARS,
-            { value: '5', label: 'Core service areas' },
+            { value: '10+', label: 'Core services' },
             { value: '14', label: 'Compliance frameworks & regulations' },
             { value: '6', label: 'ERP platforms' },
         ],
@@ -106,7 +106,7 @@ const SERVICE_PAGES = {
         description:
             'At Engold Consulting, our experts have deep knowledge, experience, and expertise to deliver a comprehensive IT risk intelligence and strategy to your organization, including implementing ERM solutions across multiple industries and developing matured IT risk management programs.',
         image: unsplash('1558494949-ef010cbdcc31'),
-        stats: [YEARS, { value: '6', label: 'Enterprise GRC platforms' }],
+        stats: [YEARS, { value: '13', label: 'GRC and risk platforms' }],
         primaryCta: CALL_BACK,
         secondaryCta: { label: 'Compliance Management', page: 'compliance' },
         intro: [
@@ -131,7 +131,21 @@ const SERVICE_PAGES = {
             {
                 heading: 'Enterprise GRC solutions we implement',
                 text: 'Engold Consulting can assist your organization in the implementation of the following Enterprise GRC solutions:',
-                items: ['ServiceNow GRC', 'Archer GRC', 'Paisley', 'Oracle GRC', 'Lockpath Keylight GRC', 'BWise'],
+                items: [
+                    'RSA Archer',
+                    'ProcessUnity',
+                    'Eramba',
+                    'OneTrust',
+                    'ServiceNow GRC',
+                    'CyberGRX',
+                    'ZenGRC',
+                    'Lockpath',
+                    'Vanta',
+                    'BitSight',
+                    'SecurityScorecard',
+                    'Drata',
+                    'Black Kite',
+                ],
             },
             {
                 heading: 'IT Audit',

@@ -65,6 +65,10 @@ export const PAGE_META = {
     name: 'AI Consulting',
     description: 'AI consulting from Engold Consulting: AI governance and risk management, secure AI adoption, and AI data privacy and compliance.',
   },
+  'it-recruitment': {
+    name: 'IT Recruitment',
+    description: 'IT recruitment from Engold Consulting: contract, contract-to-hire and permanent placement of IT risk, compliance and cybersecurity professionals.',
+  },
   industries: {
     name: 'Industries',
     description: 'IT risk, compliance, cybersecurity and data privacy consulting for financial services, healthcare, energy, retail and manufacturing.',

@@ -7,6 +7,7 @@ import About from './About.jsx';
 import ArticlePage from './ArticlePage.jsx';
 import Solutions from './Solutions.jsx';
 import Careers from './Careers.jsx';
+import Recruitment from './Recruitment.jsx';
 import Contact from './Contact.jsx';
 import Industries from './Industries.jsx';
 import { EMAIL, PHONE, PHONE_HREF, HOURS, OFFICES, LINKEDIN_URL } from './siteInfo.js';
@@ -78,6 +79,7 @@ const getActiveNav = (page) => {
   if (page === 'home') return 'home';
   if (page === 'about') return 'about';
   if (page === 'careers') return 'careers';
+  if (page === 'it-recruitment') return 'it-recruitment';
   if (page === 'contact-us') return 'contact';
   if (page === 'industries') return 'industries';
   if (SERVICE_PAGES.includes(page) || page === 'article') return 'services';
@@ -112,7 +114,7 @@ const X = () => (
 const SERVICE_PAGES = [
   'solutions', 'advisory', 'risk-consulting', 'it-risk', 'compliance', 'vendor-risk', 'data-privacy', 'cyber-data', 'managed-services', 'ai-consulting',
 ];
-const PAGES = new Set(['home', 'about', 'article', ...SERVICE_PAGES, 'industries', 'contact-us', 'careers']);
+const PAGES = new Set(['home', 'about', 'article', ...SERVICE_PAGES, 'it-recruitment', 'industries', 'contact-us', 'careers']);
 const ARTICLE_IDS = new Set(['ai-enablement', 'risk-ai']);
 const DEFAULT_ARTICLE_ID = 'ai-enablement';
 
@@ -151,6 +153,7 @@ const FOOTER_COLUMNS = [
   {
     title: 'Services',
     links: [
+      { label: 'IT Recruitment', page: 'it-recruitment' },
       { label: 'Advisory', page: 'advisory' },
       { label: 'Risk Consulting', page: 'risk-consulting' },
       { label: 'Cyber & Data', page: 'cyber-data' },
@@ -320,6 +323,16 @@ export default function App() {
               <NavIndicator active={activeNav === 'about'} />
             </button>
 
+            {/* IT RECRUITMENT */}
+            <button
+              onClick={() => navigateTo('it-recruitment')}
+              className={navItemClass('it-recruitment')}
+              aria-current={activeNav === 'it-recruitment' ? 'page' : undefined}
+            >
+              IT Recruitment
+              <NavIndicator active={activeNav === 'it-recruitment'} />
+            </button>
+
             {/* SERVICES (was Solutions) */}
             <div
               className="relative py-2"
@@ -347,6 +360,15 @@ export default function App() {
                     transition={{ duration: 0.18 }}
                     className="absolute top-full left-0 w-80 bg-white/95 backdrop-blur-2xl border border-gray-100 shadow-2xl rounded-2xl p-2 z-50 space-y-1 text-gray-900"
                   >
+                    <button
+                      onClick={() => navigateTo('it-recruitment')}
+                      onMouseEnter={() => setActiveSubRisk(false)}
+                      className="w-full text-left p-3 rounded-xl hover:bg-orange-50/80 transition-colors group block"
+                    >
+                      <span className="text-xs font-bold text-gray-900 group-hover:text-orange-600 block">IT Recruitment</span>
+                      <span className="text-[11px] text-gray-500 block leading-tight">Contract, contract-to-hire & permanent IT talent</span>
+                    </button>
+
                     <button
                       onClick={() => navigateTo('advisory')}
                       onMouseEnter={() => setActiveSubRisk(false)}
@@ -481,6 +503,16 @@ export default function App() {
                 </button>
               </div>
 
+              {/* IT RECRUITMENT */}
+              <div className="border-b border-gray-100 pb-3">
+                <button
+                  onClick={() => navigateTo('it-recruitment')}
+                  className="w-full text-left text-base font-bold text-gray-900 py-2 hover:text-orange-600 block"
+                >
+                  IT Recruitment
+                </button>
+              </div>
+
               {/* ACCORDION: SERVICES */}
               <div className="border-b border-gray-100 pb-3">
                 <button
@@ -492,6 +524,7 @@ export default function App() {
                 </button>
                 {mobileExpandedSection === 'solutions' && (
                   <div className="pl-4 pt-2 space-y-2 text-sm text-gray-600">
+                    <button onClick={() => navigateTo('it-recruitment')} className="block w-full text-left py-1 hover:text-orange-600">IT Recruitment</button>
                     <button onClick={() => navigateTo('advisory')} className="block w-full text-left py-1 hover:text-orange-600">Advisory</button>
                     <span className="block w-full text-left py-1 text-gray-400 font-semibold">Risk Consulting</span>
                     <button onClick={() => navigateTo('it-risk')} className="block w-full text-left py-1 hover:text-orange-600 pl-3 border-l border-gray-200">IT Risk Management</button>
@@ -567,6 +600,7 @@ export default function App() {
       {currentPage === 'industries' && <Industries onNavigate={navigateTo} />}
       {currentPage === 'contact-us' && <Contact onNavigate={navigateTo} />}
       {currentPage === 'careers' && <Careers onNavigate={navigateTo} />}
+      {currentPage === 'it-recruitment' && <Recruitment onNavigate={navigateTo} />}
 
       {/* ═══════════════ FOOTER ═══════════════ */}
       <footer className="bg-[#0A1322] text-white border-t border-white/10">

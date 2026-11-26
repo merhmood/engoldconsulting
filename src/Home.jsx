@@ -71,6 +71,12 @@ export default function Home({ onNavigate, onOpenArticle }) {
             subtitle: "Complimenting enabling technologies with best practice strategy, design and implementation."
         },
         {
+            tag: "IT Recruitment",
+            title: "Helping You Find the Right Talent",
+            subtitle: "We connect our clients with skilled IT, risk, compliance and cybersecurity professionals who fit the role and the team.",
+            primary: { label: "Explore IT Recruitment", page: "it-recruitment" }
+        },
+        {
             tag: "Over 20 years of experience",
             title: "Client-Centric IT Solutions",
             subtitle: "We deliver client centric IT solutions that support your goals and objectives."
@@ -161,10 +167,10 @@ export default function Home({ onNavigate, onOpenArticle }) {
 
                         <div className="w-full sm:w-auto grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
                             <button
-                                onClick={() => onNavigate('about')}
+                                onClick={() => onNavigate(heroSlideContent[heroSlideIndex].primary?.page || 'about')}
                                 className="px-6 sm:px-8 py-3.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors shadow-xl shadow-orange-500/30 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
                             >
-                                Learn More
+                                {heroSlideContent[heroSlideIndex].primary?.label || 'Learn More'}
                             </button>
                             <button
                                 onClick={() => onNavigate('contact-us')}

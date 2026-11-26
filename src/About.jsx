@@ -13,8 +13,8 @@ const CERTIFICATIONS = [
 const STATS = [
     { value: '20+', label: 'Years of experience' },
     { value: '100+', label: 'Years of collective penetration testing experience' },
-    { value: '5', label: 'Professional certifications' },
-    { value: '5', label: 'Core service areas' },
+    { value: '10+', label: 'Professional certifications' },
+    { value: '6+', label: 'Core services' },
 ];
 
 const COMMITMENTS = [
