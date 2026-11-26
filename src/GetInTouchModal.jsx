@@ -307,6 +307,14 @@ function Dialog({ initialType, onClose }) {
     const [done, setDone] = useState(null);
     const panelRef = useRef(null);
 
+    // Close when the dark backdrop itself is pressed, but not when the press lands on the
+    // backdrop's scrollbar (which the browser reports as a press on the backdrop element)
+    const closeOnBackdrop = (e) => {
+        if (e.target !== e.currentTarget || e.button !== 0) return;
+        const onScrollbar = e.clientX >= e.currentTarget.clientWidth || e.clientY >= e.currentTarget.clientHeight;
+        if (!onScrollbar) onClose();
+    };
+
     // Lock page scroll, close on Escape, move focus into the dialog and restore it afterwards
     useEffect(() => {
         const returnFocus = document.activeElement;
@@ -328,9 +336,9 @@ function Dialog({ initialType, onClose }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+                    onMouseDown={closeOnBackdrop}
                 >
-                    <div className="min-h-full flex items-start justify-center p-0 sm:p-6 lg:py-10" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+                    <div className="min-h-full flex items-start justify-center p-0 sm:p-6 lg:py-10" onMouseDown={closeOnBackdrop}>
                         <motion.div
                             ref={panelRef}
                             role="dialog"
