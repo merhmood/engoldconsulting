@@ -38,16 +38,7 @@ const EngoldLogo = ({ onClick, className = '', size = 'default', inverted = fals
   );
 };
 
-// Main office shown in the top bar (all offices are listed in the footer and on the Contact page)
-const MAIN_OFFICE = OFFICES[0];
-
 // SVG ICON HELPERS FOR TOP INFO BAR
-const MapPinIcon = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
 
 const ClockIcon = ({ className = 'w-4 h-4' }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
@@ -277,18 +268,9 @@ export default function App() {
       {/* ═══════════════ TOP INFO BAR (BRAND ORANGE) ═══════════════ */}
       <div className="hidden md:block bg-orange-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between text-[12px] font-semibold">
-          {/* LEFT: ADDRESS + HOURS */}
-          <div className="flex items-center divide-x divide-white/30">
-            <a
-              href={MAIN_OFFICE.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 pr-5 hover:text-orange-100 transition-colors"
-            >
-              <MapPinIcon className="w-4 h-4 text-white" />
-              <span><span className="hidden xl:inline">{MAIN_OFFICE.name}: </span>{MAIN_OFFICE.lines.join(', ')}</span>
-            </a>
-            <div className="hidden lg:flex items-center gap-2 pl-5">
+          {/* LEFT: HOURS */}
+          <div className="flex items-center">
+            <div className="hidden lg:flex items-center gap-2">
               <ClockIcon className="w-4 h-4 text-white" />
               <span>Business Hours: {HOURS}</span>
             </div>
